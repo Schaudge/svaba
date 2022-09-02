@@ -1,0 +1,198 @@
+cmake_minimum_required(VERSION 3.10)
+project(svaba)
+
+set(CMAKE_CXX_STANDARD 11)
+add_definitions(-DHAVE_PTHREAD -DUSE_MALLOC_WRAPPERS -DHAVE_CONFIG_H -DHAVE_C11 -D_GLIBCXX_USE_CXX11_ABI=0)
+add_compile_options(-Wall -Wno-sign-compare -Wno-unused-parameter -Wextra -Wno-unknown-pragmas)
+
+include_directories(SeqLib)
+include_directories(src)
+include_directories(src/svaba)
+include_directories(src/svabautils)
+include_directories(src/SGA)
+include_directories(src/SGA/Util)
+include_directories(src/SGA/StringGraph)
+include_directories(src/SGA/Bigraph)
+include_directories(src/SGA/SGA)
+include_directories(src/SGA/SQG)
+include_directories(src/SGA/SuffixTools)
+include_directories(src/SGA/Algorithm)
+include_directories(SeqLib/htslib)
+include_directories(SeqLib/htslib/htslib)
+
+
+add_executable(svaba
+        src/svaba/svaba.cpp
+        src/svaba/run_svaba.cpp
+        src/svaba/BreakPoint.cpp
+        src/svaba/AlignedContig.cpp
+        src/svaba/AlignmentFragment.cpp
+        src/svaba/DiscordantCluster.cpp
+        src/svaba/DBSnpFilter.cpp
+        src/svaba/PONFilter.cpp
+        src/svaba/svabaAssemblerEngine.cpp
+        src/svaba/svabaUtils.cpp
+        src/svaba/LearnBamParams.cpp
+        src/svaba/DiscordantRealigner.cpp
+        src/svaba/refilter.cpp
+        src/svaba/svabaOverlapAlgorithm.cpp
+        src/svaba/svabaASQG.cpp
+        src/svaba/svabaAssemble.cpp
+        src/svaba/KmerFilter.cpp
+        src/svaba/svabaBamWalker.cpp
+        src/svaba/STCoverage.cpp
+        src/svaba/Histogram.cpp
+        src/svaba/BamStats.cpp
+        src/svaba/svabaRead.cpp
+        src/svaba/vcf.cpp
+        SeqLib/src/FastqReader.cpp
+        SeqLib/src/BFC.cpp
+        SeqLib/src/ReadFilter.cpp
+        SeqLib/src/SeqPlot.cpp
+        SeqLib/src/jsoncpp.cpp
+        SeqLib/src/ssw_cpp.cpp
+        SeqLib/src/ssw.c
+        SeqLib/src/FermiAssembler.cpp
+        SeqLib/src/BamHeader.cpp
+        SeqLib/src/BamReader.cpp
+        SeqLib/src/BamRecord.cpp
+        SeqLib/src/BamWriter.cpp
+        SeqLib/src/BWAWrapper.cpp
+        SeqLib/src/RefGenome.cpp
+        SeqLib/src/GenomicRegion.cpp
+        src/SGA/SQG/SQG.cpp
+        src/SGA/SQG/ASQG.cpp
+        src/SGA/Util/Util.cpp
+        src/SGA/Util/stdaln.c
+        src/SGA/Util/Alphabet.cpp
+        src/SGA/Util/Contig.cpp
+        src/SGA/Util/ReadInfoTable.cpp
+        src/SGA/Util/SeqReader.cpp
+        src/SGA/Util/DNAString.cpp
+        src/SGA/Util/Match.cpp
+        src/SGA/Util/Pileup.cpp
+        src/SGA/Util/Interval.cpp
+        src/SGA/Util/SeqCoord.cpp
+        src/SGA/Util/QualityVector.cpp
+        src/SGA/Util/Quality.cpp
+        src/SGA/Util/PrimerScreen.cpp
+        src/SGA/Util/CorrectionThresholds.cpp
+        src/SGA/Util/ClusterReader.cpp
+        src/SGA/Util/QualityTable.cpp
+        src/SGA/Util/BitChar.cpp
+        src/SGA/Util/MultiOverlap.cpp
+        src/SGA/Util/ReadTable.cpp
+        src/SGA/Util/gzstream.C
+        src/SGA/Bigraph/Bigraph.cpp
+        src/SGA/Bigraph/Vertex.cpp
+        src/SGA/Bigraph/Edge.cpp
+        src/SGA/Bigraph/EdgeDesc.cpp
+        src/SGA/SuffixTools/STCommon.cpp
+        src/SGA/SuffixTools/Occurrence.cpp
+        src/SGA/SuffixTools/SuffixArray.cpp
+        src/SGA/SuffixTools/SuffixCompare.cpp
+        src/SGA/SuffixTools/InverseSuffixArray.cpp
+        src/SGA/SuffixTools/SACAInducedCopying.cpp
+        src/SGA/SuffixTools/BWTAlgorithms.cpp
+        src/SGA/SuffixTools/BWTReader.cpp
+        src/SGA/SuffixTools/BWTWriter.cpp
+        src/SGA/SuffixTools/SAReader.cpp
+        src/SGA/SuffixTools/SAWriter.cpp
+        src/SGA/SuffixTools/SBWT.cpp
+        src/SGA/SuffixTools/RLBWT.cpp
+        src/SGA/SuffixTools/BWTWriterBinary.cpp
+        src/SGA/SuffixTools/BWTReaderBinary.cpp
+        src/SGA/SuffixTools/BWTWriterAscii.cpp
+        src/SGA/SuffixTools/BWTReaderAscii.cpp
+        src/SGA/SuffixTools/BWTIntervalCache.cpp
+        src/SGA/Algorithm/OverlapAlgorithm.cpp
+        src/SGA/Algorithm/SearchSeed.cpp
+        src/SGA/Algorithm/OverlapBlock.cpp
+        src/SGA/Algorithm/SearchHistory.cpp
+        src/SGA/Algorithm/OverlapTools.cpp
+        src/SGA/Algorithm/DPAlignment.cpp
+        src/SGA/StringGraph/SGUtil.cpp
+        src/SGA/StringGraph/SGAlgorithms.cpp
+        src/SGA/StringGraph/SGVisitors.cpp
+        src/SGA/StringGraph/CompleteOverlapSet.cpp
+        src/SGA/StringGraph/RemovalAlgorithm.cpp
+        src/SGA/StringGraph/SGSearch.cpp
+        src/SGA/StringGraph/SGWalk.cpp
+        src/SGA/SGA/OverlapCommon.cpp)
+
+### All static library (.a) was created by local source code !!!
+add_library(bwa STATIC
+        SeqLib/bwa/bntseq.c
+        SeqLib/bwa/bwa.c
+        SeqLib/bwa/bwamem.c
+        SeqLib/bwa/bwamem_extra.c
+        SeqLib/bwa/bwamem_pair.c
+        SeqLib/bwa/bwt.c
+        SeqLib/bwa/bwt_gen.c
+        SeqLib/bwa/bwtindex.c
+        SeqLib/bwa/is.c
+        SeqLib/bwa/ksw.c
+        SeqLib/bwa/kthread.c
+        SeqLib/bwa/malloc_wrap.c
+        SeqLib/bwa/QSufSort.c
+        SeqLib/bwa/rle.c
+        SeqLib/bwa/rope.c
+        SeqLib/bwa/utils.c)
+
+add_library(hts STATIC
+        SeqLib/htslib/bcf_sr_sort.c
+        SeqLib/htslib/bgzf.c
+        SeqLib/htslib/errmod.c
+        SeqLib/htslib/faidx.c
+        SeqLib/htslib/hfile.c
+        SeqLib/htslib/hfile_net.c
+        SeqLib/htslib/hts.c
+        SeqLib/htslib/kfunc.c
+        SeqLib/htslib/knetfile.c
+        SeqLib/htslib/kstring.c
+        SeqLib/htslib/md5.c
+        SeqLib/htslib/multipart.c
+        SeqLib/htslib/probaln.c
+        SeqLib/htslib/realn.c
+        SeqLib/htslib/regidx.c
+        SeqLib/htslib/sam.c
+        SeqLib/htslib/synced_bcf_reader.c
+        SeqLib/htslib/tbx.c
+        SeqLib/htslib/textutils.c
+        SeqLib/htslib/thread_pool.c
+        SeqLib/htslib/vcf.c
+        SeqLib/htslib/vcf_sweep.c
+        SeqLib/htslib/vcfutils.c
+        SeqLib/htslib/cram/cram_codecs.c
+        SeqLib/htslib/cram/cram_decode.c
+        SeqLib/htslib/cram/cram_encode.c
+        SeqLib/htslib/cram/cram_external.c
+        SeqLib/htslib/cram/cram_index.c
+        SeqLib/htslib/cram/cram_io.c
+        SeqLib/htslib/cram/cram_samtools.c
+        SeqLib/htslib/cram/cram_stats.c
+        SeqLib/htslib/cram/files.c
+        SeqLib/htslib/cram/mFILE.c
+        SeqLib/htslib/cram/open_trace_file.c
+        SeqLib/htslib/cram/pooled_alloc.c
+        SeqLib/htslib/cram/rANS_static.c
+        SeqLib/htslib/cram/sam_header.c
+        SeqLib/htslib/cram/string_alloc.c)
+
+add_library(fml STATIC
+        SeqLib/fermi-lite/bfc.c
+        SeqLib/fermi-lite/bseq.c
+        SeqLib/fermi-lite/bubble.c
+        SeqLib/fermi-lite/f_ksw.c
+        SeqLib/fermi-lite/htab.c
+        SeqLib/fermi-lite/kthread.c
+        SeqLib/fermi-lite/mag.c
+        SeqLib/fermi-lite/misc.c
+        SeqLib/fermi-lite/mrope.c
+        SeqLib/fermi-lite/rld0.c
+        SeqLib/fermi-lite/rle.c
+        SeqLib/fermi-lite/rope.c
+        SeqLib/fermi-lite/unitig.c)
+
+target_link_libraries(svaba bwa hts fml m z bz2 lzma curl pthread)
+
