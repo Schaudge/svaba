@@ -1716,41 +1716,46 @@ double SampleInfo::__genotype_likelihoods(int g, double er, int alt, int cov) {
 
 bool ReducedBreakPoint::operator < (const ReducedBreakPoint& bp) const {
 
-    //ASDIS > ASSMB > COMP > DSCRD
-    if (std::strcmp(evidence, bp.evidence) < 0) // <
+    // ASDIS > ASSMB > COMP > DSCRD
+    if (std::strcmp(evidence, bp.evidence) > 0) // <
         return true;
-    else if (std::strcmp(evidence, bp.evidence) > 0) // >
+    else if (std::strcmp(evidence, bp.evidence) < 0) // >
         return false;
 
-    if (cov > bp.cov)
+    if (cov < bp.cov)
         return true;
-    else if (cov < bp.cov)
+    else if (cov > bp.cov)
         return false;
 
-    //if (nsplit > bp.nsplit)
+    //if (nsplit < bp.nsplit)
     //  return true;
-    //else if (nsplit < bp.nsplit)
+    //else if (nsplit > bp.nsplit)
     //  return false;
 
-    //if (tsplit > bp.tsplit)
+    //if (tsplit < bp.tsplit)
+    //    return true;
+    //else if (tsplit > bp.tsplit)
+    //    return false;
+
+    //if (dc.ncount < bp.dc.ncount)
     //  return true;
-    //else if (tsplit < bp.tsplit)
+    //else if (dc.ncount > bp.dc.ncount)
     //  return false;
 
-    //if (dc.ncount > bp.dc.ncount)
-    //  return true;
-    //else if (dc.ncount < bp.dc.ncount)
-    //  return false;
+    if (quality < bp.quality && true_lod < bp.true_lod)
+        return true;
+    else if (quality > bp.quality && true_lod > bp.true_lod)
+        return false;
 
-    //if (dc.tcount > bp.dc.tcount)
-    // return true;
-    //else if (dc.tcount < bp.dc.tcount)
-    // return false;
+    if (dc.tcount < bp.dc.tcount)
+        return true;
+    else if (dc.tcount > bp.dc.tcount)
+        return false;
 
     // break the tie somehow
-    if (cname > bp.cname)
+    if (cname < bp.cname)
         return true;
-    else if (cname < bp.cname)
+    else if (cname > bp.cname)
         return false;
 
     return false;
