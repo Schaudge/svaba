@@ -170,62 +170,57 @@ int overlapSize(const SeqLib::BamRecord& query, const SeqLib::BamRecordVector& s
   // just get a count of how many jobs to run. Useful for limiting threads. Also set the regions
   int countJobs(const std::string& regionFile, SeqLib::GRC &file_regions, SeqLib::GRC &run_regions, 
 		const SeqLib::BamHeader& h, int chunk, int window_pad) {
-    
-    // open the region file if it exists
-    bool rgfile = SeqLib::read_access_test(regionFile);
-    if (rgfile) {
-      try {
-	file_regions = SeqLib::GRC(regionFile, h);
-      } catch (const std::exception &exc) {
-	std::cerr << "Found chromosome in region file " << regionFile << " not in reference genome. Skipping." << std::endl;
-	std::cerr << "     Caught error: " << exc.what() << std::endl;
-      }
-    }
-    
-    // parse as a samtools string eg 1:1,000,000-2,000,000
-    else if (regionFile.find(":") != std::string::npos && regionFile.find("-") != std::string::npos) {
-      file_regions.add(SeqLib::GenomicRegion(regionFile, h));
-    }
-    
-    // it's a single chromosome
-    else if (!regionFile.empty()) {
-      SeqLib::GenomicRegion gr(regionFile, "1", "1", h);
-      if (gr.chr == -1 || gr.chr >= h.NumSequences()) {
-	std::cerr << "ERROR: Trying to match chromosome " << regionFile << " to one in header, but no match found" << std::endl;
-	exit(EXIT_FAILURE);
-      } else {
-	gr.pos2 = h.GetSequenceLength(gr.chr); //get_()->target_len[gr.chr];
-	file_regions.add(gr);
-      }
-    }
-    else { 
-      // add all chromosomes
-      for (int i = 0; i < h.NumSequences(); i++) {
-	//if (i < 23) // don't add outsdie of 1-X
-	  file_regions.add(SeqLib::GenomicRegion(i, 1, h.GetSequenceLength(i))); //h.get()_->target_len[i]));
-      }
-    }
-    
-    // check if the mask was successful
-    if (file_regions.size() == 0) {
-      std::cerr << "ERROR: Cannot read region file: " << regionFile << 
-	" or something wrong with bam header ('chr' prefix mismatch?)" << std::endl;
-      exit(EXIT_FAILURE);
-    }
-    
-    // divide it up
-    if (chunk > 0) { // if <= 0, whole genome at once
-      for (auto& r : file_regions) {
-	SeqLib::GRC test(chunk, window_pad, r);
-	run_regions.Concat(test);
-      }
-    }
 
-    // now clear file regions, to signal that it was empty
-    if (regionFile.empty())
-      file_regions.clear(); 
-    
-    return run_regions.size();
+      // open the region file if it exists
+      bool rgfile = SeqLib::read_access_test(regionFile);
+      if (rgfile) {
+          try {
+              file_regions = SeqLib::GRC(regionFile, h);
+          } catch (const std::exception &exc) {
+              std::cerr << "Found chromosome in region file " << regionFile << " not in reference genome. Skipping." << std::endl;
+              std::cerr << "     Caught error: " << exc.what() << std::endl;
+          }
+      } // parse as a samtools string eg 1:1,000,000-2,000,000
+      else if (regionFile.find(":") != std::string::npos && regionFile.find("-") != std::string::npos) {
+          file_regions.add(SeqLib::GenomicRegion(regionFile, h));
+      } // it's a single chromosome
+      else if (!regionFile.empty()) {
+          SeqLib::GenomicRegion gr(regionFile, "1", "1", h);
+          if (gr.chr == -1 || gr.chr >= h.NumSequences()) {
+              std::cerr << "ERROR: Trying to match chromosome " << regionFile << " to one in header, but no match found" << std::endl;
+              exit(EXIT_FAILURE);
+          } else {
+              gr.pos2 = h.GetSequenceLength(gr.chr); //get_()->target_len[gr.chr];
+              file_regions.add(gr);
+          }
+      } else {
+          // add all chromosomes
+          for (int i = 0; i < h.NumSequences(); i++) {
+              //if (i < 23) // don't add outsdie of 1-X
+              file_regions.add(SeqLib::GenomicRegion(i, 1, h.GetSequenceLength(i))); //h.get()_->target_len[i]));
+          }
+      }
+
+      // check if the mask was successful
+      if (file_regions.size() == 0) {
+          std::cerr << "ERROR: Cannot read region file: " << regionFile <<
+                    " or something wrong with bam header ('chr' prefix mismatch?)" << std::endl;
+          exit(EXIT_FAILURE);
+      }
+
+      // divide it up
+      if (chunk > 0) { // if <= 0, whole genome at once
+          for (auto& r : file_regions) {
+              SeqLib::GRC test(chunk, window_pad, r);
+              run_regions.Concat(test);
+          }
+      }
+
+      // now clear file regions, to signal that it was empty
+      if (regionFile.empty())
+          file_regions.clear();
+
+      return run_regions.size();
       
   }
   

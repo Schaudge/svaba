@@ -70,8 +70,7 @@ struct VCFEntry {
 
   // data
   std::shared_ptr<ReducedBreakPoint> bp;
-  uint32_t id;
-  uint8_t id_num;
+  uint32_t id:30, id_num:2;
 
   std::string getRefString() const;
   std::string getAltString() const;

@@ -9,8 +9,7 @@
 
 typedef std::map<std::string, svabaBamWalker> WalkerMap;
 
-template <typename T> class wqueue
-{ 
+template <typename T> class wqueue {
 
   public:
   wqueue() {
@@ -48,7 +47,7 @@ template <typename T> class wqueue
     return size;
   }
 
-  std::list<T>   m_queue;
+  std::list<T>    m_queue;
   pthread_mutex_t m_mutex;
   pthread_cond_t  m_condv;
 
@@ -59,8 +58,7 @@ class svabaThread {
   public:
   svabaThread() : m_tid(0), m_running(0), m_detached(0) {}
   
-  ~svabaThread()
-  {
+  virtual ~ svabaThread() {
     if (m_running == 1 && m_detached == 0) {
       pthread_detach(m_tid);
     }
@@ -69,13 +67,11 @@ class svabaThread {
     }
   }
 
-  static void* runThread(void* arg)
-  {
+  static void* runThread(void* arg) {
     return ((svabaThread*)arg)->run();
   }
  
-  int start()
-  {
+  int start() {
     int result = pthread_create(&m_tid, NULL, runThread, this);
     if (result == 0) {
       m_running = 1;
@@ -83,25 +79,24 @@ class svabaThread {
     return result;
   }
 
-  int join()
-  {
+  int join() {
     int result = -1;
     if (m_running == 1) {
       result = pthread_join(m_tid, NULL);
       if (result == 0) {
-	m_detached = 1;
+          m_detached = 1;
       }
+      m_running = 0;
     }
     return result;
   }
  
-  int detach()
-  {
+  int detach() {
     int result = -1;
     if (m_running == 1 && m_detached == 0) {
       result = pthread_detach(m_tid);
       if (result == 0) {
-	m_detached = 1;
+          m_detached = 1;
       }
     }
     return result;
@@ -117,10 +112,11 @@ private:
   pthread_t  m_tid;
   int        m_running;
   int        m_detached;
+
 };
 
 template <class T>
-  class ConsumerThread : public svabaThread {
+class ConsumerThread : public svabaThread {
  
 public:
 
@@ -128,7 +124,7 @@ public:
 		const std::string& ref, const std::string& vir,
 		const std::map<std::string, std::string>& bams) : m_queue(queue), m_verbose(verbose) {
 
-    // load the reference genomce
+    // load the reference genome
     if (m_verbose)
       std::cerr << "\tOpening ref genome for thread " << self() << std::endl;
     wu.ref_genome = new SeqLib::RefGenome(); 
@@ -137,10 +133,10 @@ public:
     // load the viral genome
     if (!vir.empty()) {
       if (m_verbose)
-	std::cerr << "\tOpening vir genome for thread " << self() << std::endl;
+          std::cerr << "\tOpening vir genome for thread " << self() << std::endl;
       wu.vir_genome = new SeqLib::RefGenome();
       wu.vir_genome->LoadIndex(vir);
-    } 
+    }
 
     // open the bams for this thread
     if (m_verbose)
@@ -150,31 +146,28 @@ public:
       wu.walkers[b.first].Open(b.second);
       wu.walkers[b.first].prefix = b.first;
     }
-    
-
   }
  
   void* run() {
     // Remove 1 item at a time and process it. Blocks if no items are 
     // available to process.
     for (int i = 0;; i++) {
-      //if (m_verbose)
-	//printf("thread %lu, loop %d - waiting for item...\n", 
-	//     (long unsigned int)self(), i);
-      T* item = (T*)m_queue.remove();
-      item->run(wu, (long unsigned)self()); 
+      // if (m_verbose)
+	  // printf("thread %lu, loop %d - waiting for item...\n",
+	  //        (long unsigned int) self(), i);
+      T* item = (T*) m_queue.remove();
+      item->run(wu, (long unsigned) self());
       delete item;
       if (m_queue.size() == 0)
         return NULL;
     }
-    return NULL;
   }
 
   svabaThreadUnit wu;
 
  private: 
   wqueue<T*>& m_queue;
-  bool m_verbose;
+  bool        m_verbose;
 
 };
 

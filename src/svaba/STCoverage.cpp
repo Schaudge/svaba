@@ -43,69 +43,66 @@ using namespace SeqLib;
     }
   */
   void STCoverage::addRead(const BamRecord &r, int buff, bool full_length) {
-    
-    //m_settled = false;
-    //m_grc.add(GenomicRegion(r.ChrID(), r.Position(), r.PositionEnd()));
-    
-    // out of bounds
-    //if (r.Position() < m_gr.pos1 || r.PositionEnd() > m_gr.pos2 || r.ChrID() != m_gr.chr)
-    //  return;
 
-    //int p = std::min(r.Position() - m_gr.pos1, m_gr.pos2);
-    //int e = std::min(r.PositionEnd() - m_gr.pos1, m_gr.pos2);
-    int p = -1; 
-    int e = -1;
+      //m_settled = false;
+      //m_grc.add(GenomicRegion(r.ChrID(), r.Position(), r.PositionEnd()));
 
-    if (full_length) {
-      Cigar c = r.GetCigar();
-      // get beginning
-      if (c.size() && c[0].RawType() == BAM_CSOFT_CLIP)
-	p = std::max((int32_t)0, r.Position() - (int32_t)c[0].Length()); // get prefixing S
-      else
-	p = r.Position();
-      // get end
-      if (c.size() && c.back().RawType() == BAM_CSOFT_CLIP)
-	e = r.PositionEnd() + c.back().Length();
-      else
-	e = r.PositionEnd();
-    }
-    else {
-      p = r.Position() + buff;
-      e = r.PositionEnd() - buff;
-    }
+      // out of bounds
+      //if (r.Position() < m_gr.pos1 || r.PositionEnd() > m_gr.pos2 || r.ChrID() != m_gr.chr)
+      //  return;
 
-    if (p < 0 || e < 0)
-      return;
+      //int p = std::min(r.Position() - m_gr.pos1, m_gr.pos2);
+      //int e = std::min(r.PositionEnd() - m_gr.pos1, m_gr.pos2);
+      int p = -1;
+      int e = -1;
 
-    // if we don't have an empty map for this, add
-    if (r.ChrID() >= (int)m_map.size()) {
-      int k = m_map.size();
-      while (k <= r.ChrID()) {
-	m_map.push_back(CovMap());
-	//m_map.back().reserve(reserve_size);
-	++k;
+      if (full_length) {
+          Cigar c = r.GetCigar();
+          // get beginning
+          if (c.size() && c[0].RawType() == BAM_CSOFT_CLIP)
+              p = std::max((int32_t)0, r.Position() - (int32_t)c[0].Length()); // get prefixing S
+          else
+              p = r.Position();
+          // get end
+          if (c.size() && c.back().RawType() == BAM_CSOFT_CLIP)
+              e = r.PositionEnd() + c.back().Length();
+          else
+              e = r.PositionEnd();
+      } else {
+          p = r.Position() + buff;
+          e = r.PositionEnd() - buff;
       }
-    }
 
-    assert(e - p < 1e6); // limit on read length
-    assert(r.ChrID() >= 0);
-    assert(r.ChrID() < (int)m_map.size());
+      if (p < 0 || e < 0)
+          return;
 
-    try {
-       while (p <= e) {
-	//CovMap::iterator iter = m_map.find(p);
-	++(m_map[r.ChrID()][p]); // add one to this position
-	++p;
-	//if (v->at(p) < 60000) // 60000 is roughly int16 lim
-	//  v->at(p)++;
-	//++p;
-	
+      // if we don't have an empty map for this, add
+      if (r.ChrID() >= (int)m_map.size()) {
+          int k = m_map.size();
+          while (k <= r.ChrID()) {
+              m_map.push_back(CovMap());
+              //m_map.back().reserve(reserve_size);
+              ++k;
+          }
       }
-    } catch (std::out_of_range &oor) {
-      std::cerr << "Position " << p << " on tid " << r.ChrID()
-		<< " is greater than expected max of " << v->size() << " -- skipping" << std::endl;
-      
-    }
+
+      assert(e - p < 1e6); // limit on read length
+      assert(r.ChrID() >= 0);
+      assert(r.ChrID() < (int)m_map.size());
+
+      try {
+          while (p <= e) {
+              //CovMap::iterator iter = m_map.find(p);
+              ++(m_map[r.ChrID()][p]); // add one to this position
+              ++p;
+              //if (v->at(p) < 60000) // 60000 is roughly int16 lim
+              //  v->at(p)++;
+              //++p;
+          }
+      } catch (std::out_of_range &oor) {
+          std::cerr << "Position " << p << " on tid " << r.ChrID()
+                    << " is greater than expected max of " << v->size() << " -- skipping" << std::endl;
+      }
 
   }
   
@@ -172,6 +169,5 @@ using namespace SeqLib;
     return ff->second;
 
     //return (v->at(q));
-    
 
 }

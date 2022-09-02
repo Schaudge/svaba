@@ -108,7 +108,7 @@ SeqLib::GRC svabaBamWalker::readBam(std::ofstream * log) {
 
     svabaRead s(r, prefix);
 
-    // quality score trim read
+    // quality score trim read. Stores in GV tag
     QualityTrimRead(s);
     
     // if its less than 20, dont even mess with it
@@ -124,35 +124,35 @@ SeqLib::GRC svabaBamWalker::readBam(std::ofstream * log) {
     DEBUG("SBW read seen", r);
 
     // if hit the limit of reads, log it and try next region
-    //if (countr > m_limit && m_limit > 0) {
-    if (this_reads.size() > m_limit && m_limit > 0) {
+      //if (countr > m_limit && m_limit > 0) {
+      if (this_reads.size() > m_limit && m_limit > 0) {
 
-      std::stringstream ss; 
-      ss << "\tstopping read lookup at " << r.Brief() << " in window " 
-	 << (m_region.size() ? m_region[tb->m_region_idx].ToString(tb->GetHeader()) : " whole BAM")
-	       << " with " << SeqLib::AddCommas(this_reads.size()) 
-	       << " weird reads. Limit: " << SeqLib::AddCommas(m_limit) << std::endl;
-      if (log)
-	(*log) << ss.str();
-      
-      if (m_region.size())  
-	bad_regions.add(m_region[tb->m_region_idx]);
+          std::stringstream ss;
+          ss << "\tstopping read lookup at " << r.Brief() << " in window "
+             << (m_region.size() ? m_region[tb->m_region_idx].ToString(tb->GetHeader()) : " whole BAM")
+             << " with " << SeqLib::AddCommas(this_reads.size())
+             << " weird reads. Limit: " << SeqLib::AddCommas(m_limit) << std::endl;
+          if (log)
+              (*log) << ss.str();
 
-      // clear these reads out
-      //if ((int)reads.size() - countr > 0)
-      this_reads.clear();
-      //reads.erase(reads.begin(), reads.begin() + countr);
-      
-      // force it to try the next region, or return if none left
-      ++tb->m_region_idx; // increment to next region
-      if (tb->m_region_idx >= m_region.size()) {/// no more regions left
-	break;
-      } else { // move to next region
-	tb->SetRegion(m_region[tb->m_region_idx]);
-	continue;
+          if (m_region.size())
+              bad_regions.add(m_region[tb->m_region_idx]);
+
+          // clear these reads out
+          //if ((int)reads.size() - countr > 0)
+          this_reads.clear();
+          //reads.erase(reads.begin(), reads.begin() + countr);
+
+          // force it to try the next region, or return if none left
+          ++tb->m_region_idx; // increment to next region
+          if (tb->m_region_idx >= m_region.size()) {/// no more regions left
+              break;
+          } else { // move to next region
+              tb->SetRegion(m_region[tb->m_region_idx]);
+              continue;
+          }
+          break;
       }
-      break;
-    }
     
     // add to all reads pile for kmer correction
     if (qcpass && get_coverage) {
@@ -167,9 +167,9 @@ SeqLib::GRC svabaBamWalker::readBam(std::ofstream * log) {
       
       int msize = 0;
       for (auto& j: ovl) {
-	int nsize = j.Width() - r.MaxDeletionBases() - 1;
-	if (nsize > msize && nsize > 0)
-	  msize = nsize;
+          int nsize = j.Width() - r.MaxDeletionBases() - 1;
+          if (nsize > msize && nsize > 0)
+              msize = nsize;
       }
       
       if (msize > 30)
@@ -200,27 +200,27 @@ SeqLib::GRC svabaBamWalker::readBam(std::ofstream * log) {
     DEBUG("SBW duplicated? " + std::to_string(is_dup), r);
     DEBUG("SBW rule pass? " + std::to_string(rule_pass), r); 
     DEBUG("SBW pass all? " + std::to_string(pass_all), r);
-   
-    // add all the reads for kmer correction
-    if (qcpass && do_kmer_filtering && all_seqs.size() < (m_limit * 5) && qcpass && !r.NumHardClip()) {
-      bool train = pass_all && s.SeqLength() > 40;
 
-      // if not 
-      if (!pass_all) {
-	if ((double)(hashed&0xffffff) / 0x1000000 <= kmer_subsample) 
-	  train = true;
-      }
-      
-      // in bfc addsequence, memory is copied. for all_seqs (SGA correction), copy explicitly
-      if (train) {
-	if (bfc)
-	  assert(bfc->AddSequence(s.Seq().c_str(), ""/*r.Qualities().c_str()*/, s.SR().c_str())); // for BFC correciton
-	else {
-	  all_seqs.push_back(strdup(s.Seq().c_str()));
-	}
-      }
+      // add all the reads for kmer correction
+      if (qcpass && do_kmer_filtering && all_seqs.size() < (m_limit * 5) && qcpass && !r.NumHardClip()) {
+          bool train = pass_all && s.SeqLength() > 40;
 
-    }
+          // if not
+          if (!pass_all) {
+              if ((double)(hashed&0xffffff) / 0x1000000 <= kmer_subsample)
+                  train = true;
+          }
+
+          // in bfc addsequence, memory is copied. for all_seqs (SGA correction), copy explicitly
+          if (train) {
+              if (bfc)
+                  assert(bfc->AddSequence(s.Seq().c_str(), ""/*r.Qualities().c_str()*/, s.SR().c_str())); // for BFC correciton
+              else {
+                  all_seqs.push_back(strdup(s.Seq().c_str()));
+              }
+          }
+
+      }
      
     if (!pass_all)
       continue;
@@ -292,35 +292,28 @@ void svabaBamWalker::subSampleToWeirdCoverage(double max_coverage) {
   
   svabaReadVector new_reads;
 
-  for (auto& r : reads)
-    {
+  for (auto& r : reads) {
       double this_cov1 = weird_cov.getCoverageAtPosition(r.ChrID(), r.Position());
       double this_cov2 = weird_cov.getCoverageAtPosition(r.ChrID(), r.PositionEnd());
       double this_cov = std::max(this_cov1, this_cov2);
       double sample_rate = 1; // dummy, always set if max_coverage > 0
-      if (this_cov > 0) 
-	sample_rate = 1 - (this_cov - max_coverage) / this_cov; // if cov->inf, sample_rate -> 0. if cov -> max_cov, sample_rate -> 1
-      
+      if (this_cov > 0)
+          sample_rate = 1 - (this_cov - max_coverage) / this_cov; // if cov->inf, sample_rate -> 0. if cov -> max_cov, sample_rate -> 1
+
       // this read should be randomly sampled, cov is too high
-      if (this_cov > max_coverage) 
-	{
-	  #ifdef QNAME
-	  if (r.Qname() == QNAME && (r.AlignmentFlag() == QFLAG || QFLAG == -1)) {
+      if (this_cov > max_coverage) {
+#ifdef QNAME
+          if (r.Qname() == QNAME && (r.AlignmentFlag() == QFLAG || QFLAG == -1)) {
 	    std::cerr << "subsampling because this_cov is " << this_cov << " and max cov is " << max_coverage << " at position " << r.Position() << " and end position " << r.PositionEnd() << std::endl;
 	    std::cerr << " this cov 1 " << this_cov1 << " this_cov2 " << this_cov2 << std::endl;
 	  }
-	  #endif
-	  uint32_t k = __ac_Wang_hash(__ac_X31_hash_string(r.Qname().c_str()) ^ m_seed);
-	  if ((double)(k&0xffffff) / 0x1000000 <= sample_rate) // passed the random filter
-	    new_reads.push_back(r);
-	}
-      else // didn't have a coverage problems
-	{
-	  new_reads.push_back(r);
-	}
-      
-    }
-
+#endif
+          uint32_t k = __ac_Wang_hash(__ac_X31_hash_string(r.Qname().c_str()) ^ m_seed);
+          if ((double)(k&0xffffff) / 0x1000000 <= sample_rate) // passed the random filter
+              new_reads.push_back(r);
+      } else // didn't have a coverage problems
+          new_reads.push_back(r);
+  }
   reads = new_reads;
 }
 

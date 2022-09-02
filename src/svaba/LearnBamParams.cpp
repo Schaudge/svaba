@@ -52,7 +52,7 @@ void LearnBamParams::learnParams(BamParamsMap& p, int max_count) {
     i.second.collectStats();
     i.second.mean_cov = (wid > 0) ? i.second.visited * i.second.readlen / wid : 0;
   }
-  
+
 }
 
 void BamParams::collectStats() {
@@ -94,7 +94,6 @@ void BamParams::collectStats() {
   //frac_bad  = num_bad / (double)visited;
   //frac_clip = num_clip / (double)visited;
 
-
 }
 
 void LearnBamParams::process_read(const SeqLib::BamRecord& r, size_t count, BamParamsMap& p,
@@ -114,7 +113,7 @@ void LearnBamParams::process_read(const SeqLib::BamRecord& r, size_t count, BamP
    // update last read position (stay on same chrom as first)
    if (chr == r.ChrID())
      pos2 = r.Position();
-   
+
    std::string RG;
    if (!r.GetZTag("RG", RG))
      RG = "NA";
