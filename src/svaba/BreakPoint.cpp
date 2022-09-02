@@ -1722,9 +1722,9 @@ bool ReducedBreakPoint::operator < (const ReducedBreakPoint& bp) const {
     else if (std::strcmp(evidence, bp.evidence) < 0) // >
         return false;
 
-    if (cov < bp.cov)
+    if (cov < bp.cov && quality < bp.quality && true_lod < bp.true_lod)
         return true;
-    else if (cov > bp.cov)
+    else if (cov > bp.cov && quality > bp.quality && true_lod > bp.true_lod)
         return false;
 
     //if (nsplit < bp.nsplit)
@@ -1742,9 +1742,14 @@ bool ReducedBreakPoint::operator < (const ReducedBreakPoint& bp) const {
     //else if (dc.ncount > bp.dc.ncount)
     //  return false;
 
-    if (quality < bp.quality && true_lod < bp.true_lod)
+    if (bp.cov > 100 && cov < bp.cov - 100 && quality < bp.quality - 30 && true_lod < bp.true_lod - 100)
         return true;
-    else if (quality > bp.quality && true_lod > bp.true_lod)
+    else if (cov > 100 && cov - 100 > bp.cov && quality - 30 > bp.quality && true_lod - 100 > bp.true_lod)
+        return false;
+
+    if (cov < bp.cov)
+        return true;
+    else if (cov > bp.cov)
         return false;
 
     if (dc.tcount < bp.dc.tcount)
