@@ -1768,7 +1768,7 @@ void run_assembly(const SeqLib::GenomicRegion& region, svabaReadVector& bav_this
 
     assert(this_alc.size() == usv.size());
 
-    // didnt get any contigs that made it all the way through
+    // didn't get any contigs that made it all the way through
     if (!this_alc.size())
         return;
 
@@ -1795,10 +1795,7 @@ void run_assembly(const SeqLib::GenomicRegion& region, svabaReadVector& bav_this
         a.checkAgainstCigarMatches(cigmap);
         // add to the final structure
         master_alc.push_back(a);
-
     }
-
-
 }
 
 CountPair collect_mate_reads(WalkerMap& walkers, const MateRegionVector& mrv, int round, SeqLib::GRC& this_bad_mate_regions) {
@@ -1869,7 +1866,7 @@ void WriteFilesOut(svabaThreadUnit& wu) {
 
     // print the alignment plots
     for (const auto& i : wu.m_alc)
-        if (i.hasVariant())
+        if (i.hasGlobalBreakpoint())
             all_align << i.print(bwa_header) << std::endl;
 
     // send the microbe to file

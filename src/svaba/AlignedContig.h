@@ -77,6 +77,9 @@ public:
     // Return if this contig contains a potential variant (indel or multi-map)
     bool hasVariant() const;
 
+    // Return if this contig contains global Breakpoint for a potential rearrangement
+    bool hasGlobalBreakpoint() const;
+
     // Write all of the contig alignment records to a BAM file
     void writeToBAM(SeqLib::BamWriter& bw) const;
 
@@ -130,9 +133,9 @@ private:
 
     std::vector<BreakPoint> m_local_breaks_secondaries; // store all of the multi-map BreakPoints for this contigs
 
-    BreakPoint m_global_bp;  // store the single spanning BreakPoing for this contig e
+    BreakPoint m_global_bp;  // store the single spanning BreakPoint for this contig e
 
-    std::vector<BreakPoint> m_global_bp_secondaries;  // store the single spanning BreakPoing for this contig e
+    std::vector<BreakPoint> m_global_bp_secondaries;  // store the single spanning BreakPoint for this contig e
 
     std::string m_seq; // sequence of contig as it came off of assembler
 

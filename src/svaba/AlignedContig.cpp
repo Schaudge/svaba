@@ -235,11 +235,9 @@ std::string AlignedContig::print(const SeqLib::BamHeader& h) const {
         std::vector<std::string> cigvec = i.GetSmartStringTag("SC"); // read against contig CIGAR
         std::vector<std::string> cnvec = i.GetSmartStringTag("CN");
 
-        if (posvec.size() != alnvec.size() ||
-        posvec.size() != rcvec.size() ||
-        cigvec.size() != posvec.size() ||
-        cnvec.size() != posvec.size())
-      continue;
+        if (posvec.size() != alnvec.size() || posvec.size() != rcvec.size() ||
+            cigvec.size() != posvec.size() || cnvec.size() != posvec.size()
+         continue;
 
         assert(cnvec.size() == posvec.size());
         size_t kk = 0;
@@ -254,7 +252,7 @@ std::string AlignedContig::print(const SeqLib::BamHeader& h) const {
 
         // reverse complement if need be
         if (rc)
-      SeqLib::rcomplement(seq);
+         SeqLib::rcomplement(seq);
         */
 
         // get the read to contig alignment information
@@ -528,6 +526,13 @@ std::vector<BreakPoint> AlignedContig::getAllBreakPointsSecondary() const {
     return out;
 }
 
+bool AlignedContig::hasGlobalBreakpoint() const {
+
+    if (!m_global_bp.isEmpty())
+        return true;
+
+    return false;
+}
 
 bool AlignedContig::hasVariant() const {
 

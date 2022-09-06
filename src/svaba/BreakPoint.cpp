@@ -1742,16 +1742,26 @@ bool ReducedBreakPoint::operator < (const ReducedBreakPoint& bp) const {
     //else if (dc.ncount > bp.dc.ncount)
     //  return false;
 
-    if (cov < bp.cov + 100 && (quality + 20 < bp.quality || true_lod + 100 < bp.true_lod))
+    if (cov > 100 && cov < bp.cov + 100 && quality + 30 < bp.quality)
         return true;
-    else if (cov + 100 > bp.cov && (quality > bp.quality + 20 || true_lod > bp.true_lod + 100))
+    else if (bp.cov > 100 && cov + 100 > bp.cov && quality > bp.quality + 30)
         return false;
 
-    if (cov < bp.cov || true_lod < bp.true_lod)
+    if (cov < bp.cov)
         return true;
-    else if (cov > bp.cov || true_lod > bp.true_lod)
+    else if (cov > bp.cov)
+        return false;
+
+    if (dc.tcount < bp.dc.tcount)
+        return true;
+    else if (dc.tcount > bp.dc.tcount)
         return false;
 
     // break the tie somehow
+    if (cname < bp.cname)
+        return true;
+    else if (cname > bp.cname)
+        return false;
+
     return false;
 }
